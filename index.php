@@ -9,8 +9,8 @@
     <body>
         
     <?php
-    //An alternate treatment using finance history
-    /*
+    An alternate treatment using finance history
+    
     Reference codes for finance history api
     
     http://www.google.com/finance/getprices?q=000001&x=SHA&i=86400&p=40Y&f=d,c,v,k,o,h,l&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg
@@ -18,14 +18,14 @@
     ?q=000001 (stock symbol)
     &x=SHA (stock exchange symbol)
     &i=86400 (interval size in seconds (86400 = 1 day intervals)
-    &p=40Y (period. a number followed by a ÔdÕ or ÔyÕ e.g. days or years. ex: 40Y = 40 years)
+    &p=40Y (period. a number followed by a Ã”dÃ• or Ã”yÃ• e.g. days or years. ex: 40Y = 40 years)
     &f=d,c,v,k,o,h,l (d=date/timestamp,c-close,v=volume,k=cday,o=opening price,h=high,l=low)
     &df=cpct (?)
     &auto=0 (?)
     &ei=Ef6XUYDfCqSTiAKEMg (?)
-    */
-    /*
-    //create array of data that can't be retrieved via an api
+    
+    
+    create array of data that can't be retrieved via an api
     $marketsArray = array(
         "SHA:000001"=>array("exchange"=>"SHA","stock"=>"000001","name"=>"Shanghai","deviation"=>""),
         "INDEXNIKKEI:NI225"=>array("exchange"=>"INDEXNIKKEI","stock"=>"NI225","name"=>"Nikkei 225","deviation"=>0),
@@ -51,71 +51,71 @@
         "IDX:COMPOSITE"=>array("exchange"=>"IDX","stock"=>"COMPOSITE","name"=>"IDX Composite","deviation"=>0)
     );
     
-    //return csv of all codes only
+    return csv of all codes only
     $marketsSymbols = implode(',',array_keys($marketsArray));
     
-    //loop through each market as key=>val
+    loop through each market as key=>val
     foreach($marketsArray as $key =>$val){
         $stock = $val['stock'];
         $exchange = $val['exchange'];
         $symbol = $key;
         
         
-        //This method would be way more accurate but I'm leaving it commented out because the actual assigment was to use the percentage provided which appears to be from the http://www.google.com/finance/info?client
+        This method would be way more accurate but I'm leaving it commented out because the actual assigment was to use the percentage provided which appears to be from the http://www.google.com/finance/info?client
         
-        //get historical data
+        get historical data
         $url = 'http://www.google.com/finance/getprices?q='.$stock.'&x='.$exchange.'&i=86400&p=5d&f=c&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg';
         $obj = file_get_contents($url);
         
         if($obj){
             
-            //explode to array and convert string values to int and filter by numeric...strips out instructional lines
+            explode to array and convert string values to int and filter by numeric...strips out instructional lines
             $lines = array_map('intval',array_filter(explode("\n", $obj),'is_numeric'));
             var_dump($lines);
             echo '<br/>';
             
-            //sum up values. there's only a single value being returned on each line so no need to split lines up
+            sum up values. there's only a single value being returned on each line so no need to split lines up
             $linesTotal =  array_sum($lines);
-            //var_dump($linesTotal);
-            //echo '<br/>';
+            var_dump($linesTotal);
+            echo '<br/>';
             
-            //count lines
+            count lines
             $linesCount = count($lines);
-            //var_dump($linesCount);
-            //echo '<br/>';
+            var_dump($linesCount);
+            echo '<br/>';
              
-            //find mean as float val 
+            find mean as float val 
             $mean = floatval($linesTotal/$linesCount);
             var_dump($mean);
             echo '<br/>';
             
-            //loop through lines and add up 
+            loop through lines and add up 
             $janitor = array();
             $endSum = 0;
             foreach($lines as $line){
-                //devide each value by the mean
+                devide each value by the mean
                 $val = $line-$mean;
-                //square new values
+                square new values
                 $endSum += $val*$val;
             }
-            //var_dump($endSum);
+            var_dump($endSum);
             
-            //devide endsum by item count -1, get sqrt and round
+            devide endsum by item count -1, get sqrt and round
             $endSum = round(sqrt($endSum/($linesCount-1)),2);
-            //var_dump($endSum);
+            var_dump($endSum);
             
-            //update value in marketsArray
+            update value in marketsArray
             $marketsArray[$symbol]['deviation'] = $endSum;
-            //var_dump($marketsArray[$symbol]);
+            var_dump($marketsArray[$symbol]);
             
             
-            //last value in lines...is todays
+            last value in lines...is todays
             $todaysClosing = end($lines);
-            //var_dump($todaysClosing);
+            var_dump($todaysClosing);
         }
         
-    }//end each market
-    */
+    }end each market
+    
         
     ?>
     <div class="container">
@@ -169,18 +169,18 @@
                         "IDX:COMPOSITE"=>array("name"=>"IDX Composite")
                     );
                     
-                    //this isn't the most accurate as it's only taking into account 2 data points. However, I'm using this one as it was requested specifically as far as I can tell. An alternate treatment is in comments above.
+                    this isn't the most accurate as it's only taking into account 2 data points. However, I'm using this one as it was requested specifically as far as I can tell. An alternate treatment is in comments above.
                     
                     foreach($marketsArray as $key => $val){
-                        //get url for this symbol
+                        get url for this symbol
                         $infoUrl = 'http://www.google.com/finance/info?client=ig&q='.$key;
-                        //get contents, remove //
+                        get contents, remove 
                         $infoObj = str_replace('//','',file_get_contents($infoUrl));
                         if($infoObj){
-                            //clean control chars and convert to asc array
+                            clean control chars and convert to asc array
                             $infoObj = json_decode(utf8_encode($infoObj),true);
                             
-                            /*"id": "338568" - internal google security id
+                            ,"id": "338568" - internal google security id
                             ,"t" : "IDX" - stock symbol
                             ,"e" : "NYSEARCA" - exchange name
                             ,"l" : "19.72" - last trade price
@@ -196,7 +196,7 @@
                             ,"cp_fix" : "-1.55" - ? 
                             ,"ccol" : "chr" - ? 
                             ,"pcls_fix" : "20.03" - previous close price
-                            */
+                            
                             
                             $stock = $infoObj[0]['t'];
                             $exchange = $infoObj[0]['e'];
@@ -208,17 +208,17 @@
                             $lastTradePriceCur = $infoObj[0]['l_cur'];
                             $lastTradeDate = $infoObj[0]['lt'];
                             
-                            //mean
+                            mean
                             $mean = ($prevClosePrice+$lastTradePrice)/2;
                             
-                            //subtract mean from each, and square
+                            subtract mean from each, and square
                             $newPrev = ($prevClosePrice-$mean)*($prevClosePrice-$mean);
                             $newLast = ($lastTradePrice-$mean)*($lastTradePrice-$mean);
                     
-                            //sum/devide by 1 (so nothing) and sqrt
+                            sum/devide by 1 (so nothing) and sqrt
                             $final = round(sqrt($newPrev+$newLast),2);
                             
-                            //output row
+                            output row
                             echo '<tr><td>'.$val['name'].'</td><td>'.$code.'</td><td>'.$lastTradePriceCur.'</td><td>'.$cAmount.' ('.$cPercentage.')</td><td>'.$final.'</td><td>'.$lastTradeDate.'</td></tr>';
                             
                         }
